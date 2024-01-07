@@ -62,5 +62,15 @@ public class Main {
         System.out.println(taskManager.getTasks());
         System.out.println(taskManager.getEpics());
         System.out.println(taskManager.getSubTasks());
+
+        System.out.println(delimiter);
+
+        taskManager.deleteSubTasks();
+
+        System.out.println(taskManager.getEpics());
+
+        System.out.println(delimiter);
+
+        taskManager.updateTask(task1);
     }
 }

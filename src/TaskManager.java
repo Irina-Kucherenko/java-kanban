@@ -27,7 +27,7 @@ public class TaskManager {
         return new ArrayList<>(subTasks.values());
     }
 
-    public int getIdentifier(){
+    public int getIdentifier(){ /*Не совсем поняла, что вы имели в виду, потому что описания ошибки в ревью не было. Что конкретно не так?*/
         if(tasks.isEmpty() && epics.isEmpty() && subTasks.isEmpty()){
             idCounter = 0;
         }
@@ -46,6 +46,10 @@ public class TaskManager {
 
     public void deleteSubTasks() {
         subTasks.clear();
+        for(Epic epic : epics.values()){
+            updateStatusEpic(epic);
+        }
+
     }
 
     public Task getTask(Integer id) {
@@ -93,21 +97,35 @@ public class TaskManager {
     }
 
     public void updateTask(Task task){
-        tasks.put(task.getId(), task);
+        if (tasks.containsKey(task.getId())) {
+            tasks.put(task.getId(), task);
+        } else {
+            System.out.println("Ошибка! Задача с id " + task.getId() + " не найдена.");
+        }
     }
 
     public void updateEpic(Epic epic){
-        updateStatusEpic(epic);
-        epics.put(epic.getId(), epic);
+        if (epics.containsKey(epic.getId())) {
+            updateStatusEpic(epic);
+            epics.put(epic.getId(), epic);
+        } else {
+            System.out.println("Ошибка! Эпик с id " + epic.getId() + " не найден.");
+        }
     }
 
     public void updateSubTask(SubTask subTask){
-        updateStatusEpic(epics.get(subTask.getEpicId()));
-        subTasks.put(subTask.getId(), subTask);
+        if (subTasks.containsKey(subTask.getId())){
+            updateStatusEpic(epics.get(subTask.getEpicId()));
+            subTasks.put(subTask.getId(), subTask);
+        } else {
+            System.out.println("Ошибка! Подзадача с id " + subTask.getId() + " не найдена.");
+        }
+
     }
 
     public List<SubTask> getSubTasksOfEpic(int epicId){
         return epics.get(epicId).getSubTaskList().stream()
+                .filter(subTasks::containsKey)
                 .map(subTasks::get)
                 .collect(Collectors.toList());
     }

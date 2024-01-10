@@ -56,7 +56,7 @@ public class Main {
         System.out.println(taskManager.getSubTasks());
 
         taskManager.deleteTask(task1.getId());
-        taskManager.deleteEpic(epic1.getId());
+
 
         System.out.println(delimiter);
         System.out.println(taskManager.getTasks());
@@ -65,12 +65,16 @@ public class Main {
 
         System.out.println(delimiter);
 
-        taskManager.deleteSubTasks();
+
 
         System.out.println(taskManager.getEpics());
 
         System.out.println(delimiter);
 
-        taskManager.updateTask(task1);
+        taskManager.deleteEpic(epic2.getId());
+        System.out.println(taskManager.getEpics());
+        System.out.println(taskManager.getSubTasks());
+
+
     }
 }

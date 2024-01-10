@@ -27,10 +27,7 @@ public class TaskManager {
         return new ArrayList<>(subTasks.values());
     }
 
-    public int getIdentifier(){ /*Не совсем поняла, что вы имели в виду, потому что описания ошибки в ревью не было. Что конкретно не так?*/
-        if(tasks.isEmpty() && epics.isEmpty() && subTasks.isEmpty()){
-            idCounter = 0;
-        }
+    private int getIdentifier(){ /*Не совсем поняла, что вы имели в виду, потому что описания ошибки в ревью не было. Что конкретно не так?*/
         idCounter++;
         return idCounter;
     }
@@ -46,7 +43,7 @@ public class TaskManager {
 
     public void deleteSubTasks() {
         subTasks.clear();
-        for(Epic epic : epics.values()){
+        for (Epic epic : epics.values()) {
             updateStatusEpic(epic);
         }
 
@@ -70,12 +67,17 @@ public class TaskManager {
 
     public void deleteEpic(Integer epicId) {
         Epic epic = epics.get(epicId);
-        epic.getSubTaskList().forEach(this::deleteSubTask);
-        epics.remove(epicId);
+        if (epics.containsKey(epic.getId())) {
+            epics.remove(epicId);
+            epic.getSubTaskList().forEach(this::deleteSubTask);
+        }
     }
 
     public void deleteSubTask(Integer subTaskId) {
         subTasks.remove(subTaskId);
+        for (Epic epic : epics.values()) {
+            updateStatusEpic(epic);
+        }
     }
 
     public Task createTask(Task task){
@@ -106,28 +108,35 @@ public class TaskManager {
 
     public void updateEpic(Epic epic){
         if (epics.containsKey(epic.getId())) {
-            updateStatusEpic(epic);
-            epics.put(epic.getId(), epic);
+            epic.setName(epic.getName());
+            epic.setDescription(epic.getDescription());
         } else {
             System.out.println("Ошибка! Эпик с id " + epic.getId() + " не найден.");
         }
     }
 
     public void updateSubTask(SubTask subTask){
-        if (subTasks.containsKey(subTask.getId())){
-            updateStatusEpic(epics.get(subTask.getEpicId()));
-            subTasks.put(subTask.getId(), subTask);
-        } else {
-            System.out.println("Ошибка! Подзадача с id " + subTask.getId() + " не найдена.");
+        if (epics.containsKey(subTask.getEpicId())) {
+            if (subTasks.containsKey(subTask.getId())) {
+                updateStatusEpic(epics.get(subTask.getEpicId()));
+                subTasks.put(subTask.getId(), subTask);
+            } else {
+                System.out.println("Ошибка! Подзадача с id " + subTask.getId() + " не найдена.");
+            }
         }
 
     }
 
     public List<SubTask> getSubTasksOfEpic(int epicId){
-        return epics.get(epicId).getSubTaskList().stream()
-                .filter(subTasks::containsKey)
-                .map(subTasks::get)
-                .collect(Collectors.toList());
+        List<SubTask> subTaskList = null;
+        Epic epic = epics.get(epicId);
+        if (epics.containsKey(epic.getId())) {
+            subTaskList = epics.get(epicId).getSubTaskList().stream()
+                    .filter(subTasks::containsKey)
+                    .map(subTasks::get)
+                    .collect(Collectors.toList());
+        }
+        return subTaskList;
     }
 
     /*Метод вытаскивает из подзадач статусы с помощью потока и проверяет их*/

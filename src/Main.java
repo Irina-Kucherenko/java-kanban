@@ -1,3 +1,7 @@
+
+
+import manager.Managers;
+import manager.TaskManager;
 import task.Epic;
 import task.SubTask;
 import task.Task;
@@ -8,7 +12,8 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Поехали!");
         String delimiter = "*****************************************************************************************";
-        TaskManager taskManager = new TaskManager();
+        Managers manager = new Managers();
+        TaskManager taskManager =  manager.getDefault();
         Task task1 = new Task("Домашнее задание от мамы", "Убрать хату, помыть посуду");
         task1 = taskManager.createTask(task1);
 
@@ -74,6 +79,30 @@ public class Main {
         taskManager.deleteEpic(epic2.getId());
         System.out.println(taskManager.getEpics());
         System.out.println(taskManager.getSubTasks());
+
+        System.out.println(delimiter);
+
+        System.out.println("Задачи:");
+        for (Task task : taskManager.getTasks()) {
+            System.out.println(task);
+        }
+        System.out.println("Эпики:");
+        for (Task epic : taskManager.getEpics()) {
+            System.out.println(epic);
+
+            for (Task task : taskManager.getSubTasksOfEpic(epic.getId())) {
+                System.out.println("--> " + task);
+            }
+        }
+        System.out.println("Подзадачи:");
+        for (Task subtask : taskManager.getSubTasks()) {
+            System.out.println(subtask);
+        }
+
+        System.out.println("История:");
+        for (Task task : taskManager.getHistoryManager().getHistory()) {
+            System.out.println(task);
+        }
 
 
     }

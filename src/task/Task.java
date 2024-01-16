@@ -3,7 +3,7 @@ package task;
 import java.util.Objects;
 
 public class Task {
-    private Integer id;
+    protected Integer id;
 
     private String name;
     private TaskStatus status;
@@ -45,6 +45,13 @@ public class Task {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Task cloneObject() {
+        Task task = new Task(name, description);
+        task.setStatus(this.status);
+        task.setId(this.id);
+        return task;
     }
 
     @Override

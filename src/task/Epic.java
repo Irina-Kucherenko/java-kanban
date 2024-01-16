@@ -2,6 +2,7 @@ package task;
 
 import java.util.ArrayList;
 import java.util.List;
+
 public class Epic extends Task {
 
     private final List<Integer> subTaskList = new ArrayList<>();
@@ -10,8 +11,15 @@ public class Epic extends Task {
     }
 
     public void addSubTask(Integer subtask){
-        subTaskList.add(subtask);
+
+        if (super.getId() != subtask) {
+            subTaskList.add(subtask);
+        }
+        else {
+            throw new IllegalArgumentException("Эпик не может быть добавлен сам в себя");
+        }
     }
+
 
     public List<Integer> getSubTaskList() {
         return subTaskList;

@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.Task;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
@@ -34,11 +36,33 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void sizeOfHistoryShouldEquals10() {
-        for (int i = 0; i <= 15; i++) {
-            historyManager.addHistory(task1);
-        }
-        assertEquals(10, historyManager.getHistory().size());
+    void removeTest() {
+        task1.setId(1);
+        Task task2 = new Task("something", "doing things");
+        task2.setId(2);
+        Task task3 = new Task("lose weight", "do some sport");
+        task3.setId(3);
+        historyManager.addHistory(task1);
+        historyManager.addHistory(task2);
+        historyManager.addHistory(task3);
+        historyManager.remove(task2.getId());
+        assertEquals(List.of(task1, task3), historyManager.getHistory());
+
     }
+
+    @Test
+    void addHistory() {
+        task1.setId(1);
+        Task task2 = new Task("something", "doing things");
+        task2.setId(2);
+        Task task3 = new Task("lose weight", "do some sport");
+        task3.setId(3);
+        historyManager.addHistory(task1);
+        historyManager.addHistory(task2);
+        historyManager.addHistory(task3);
+        assertEquals(List.of(task1, task2, task3), historyManager.getHistory());
+    }
+
+
 
 }

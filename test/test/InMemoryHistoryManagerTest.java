@@ -26,6 +26,7 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void shouldSavePreviousHistory() {
+        task1.setId(8);
         historyManager.addHistory(task1);
         task1.setName("Music");
         task1.setDescription("Write song");

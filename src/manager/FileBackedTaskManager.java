@@ -16,134 +16,41 @@ import java.util.stream.Collectors;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
-    private final File file;
+    private final File storageTasks;
 
     public FileBackedTaskManager(File file) {
         super(new HashMap<>(), new HashMap<>(), new HashMap<>(), 0);
-        this.file = file;
+        this.storageTasks = file;
     }
 
     public FileBackedTaskManager(File file, Map<Integer, Task> tasks, Map<Integer, Epic> epics,
                                  Map<Integer, SubTask> subTasks, int idCounter) {
         super(tasks, epics, subTasks, idCounter);
-        this.file = file;
+        this.storageTasks = file;
     }
-
-
-
-
-    @Override
-    public void deleteTasks() {
-        super.deleteTasks();
-        save();
-    }
-
-    @Override
-    public void deleteEpics() {
-        super.deleteEpics();
-        save();
-    }
-
-    @Override
-    public void deleteSubTasks() {
-        super.deleteSubTasks();
-        save();
-    }
-
-    @Override
-    public void deleteTask(Integer id) {
-        super.deleteTask(id);
-        save();
-    }
-
-    @Override
-    public void deleteEpic(Integer epicId) {
-        super.deleteEpic(epicId);
-        save();
-    }
-
-    @Override
-    public void deleteSubTask(Integer subTaskId) {
-        super.deleteSubTask(subTaskId);
-        save();
-    }
-
-    @Override
-    public Task createTask(Task task) {
-        var result = super.createTask(task);
-        save();
-        return result;
-    }
-
-    @Override
-    public Epic createEpic(Epic epic) {
-        var result = super.createEpic(epic);
-        save();
-        return result;
-    }
-
-    @Override
-    public SubTask createSubTask(SubTask subTask) {
-        var result = super.createSubTask(subTask);
-        save();
-        return result;
-    }
-
-    @Override
-    public void updateTask(Task task) {
-        super.updateTask(task);
-        save();
-    }
-
-    @Override
-    public void updateEpic(Epic epic) {
-        super.updateEpic(epic);
-        save();
-    }
-
-    @Override
-    public void updateSubTask(SubTask subTask) {
-        super.updateSubTask(subTask);
-        save();
-    }
-
 
     private void save() {
+        CSV csv = new CSV();
         StringBuilder sb = new StringBuilder();
         sb.append("id,type,name,status,description,epic\n");
         for (Task task : super.getTasks()) {
-            sb.append(toStringTask(task));
+            sb.append(csv.toStringTask(task));
         }
         for (Epic epic : super.getEpics()) {
-            sb.append(toStringEpic(epic));
+            sb.append(csv.toStringEpic(epic));
         }
         for (SubTask subTask : super.getSubTasks()) {
-            sb.append(toStringSubTask(subTask));
+            sb.append(csv.toStringSubTask(subTask));
         }
         sb.append(historyToString(super.getHistoryManager()));
         try {
-            Files.writeString(file.toPath(), sb.toString());
+            Files.writeString(storageTasks.toPath(), sb.toString());
         } catch (IOException e) {
             throw new ManagerSaveException(e.getMessage());
         }
     }
 
-    private String toStringTask(Task task) {
-        return String.format("%s,%s,%s,%s,%s,%n", task.getId(), TaskTypes.TASK, task.getName(),
-                task.getStatus(), task.getDescription());
-    }
-
-    private String toStringEpic(Epic epic) {
-        return String.format("%s,%s,%s,%s,%s,%n", epic.getId(), TaskTypes.EPIC, epic.getName(),
-                epic.getStatus(), epic.getDescription());
-    }
-
-    private String toStringSubTask(SubTask subTask) {
-        return String.format("%s,%s,%s,%s,%s,%s%n", subTask.getId(), TaskTypes.SUBTASK, subTask.getName(),
-                subTask.getStatus(), subTask.getDescription(), subTask.getEpicId());
-    }
-
-     static Task fromString(String elem) {
+     private static Task fromString(String elem) {
         String[] taskParams = elem.split(",");
         int id = Integer.parseInt(taskParams[0]);
         TaskTypes type = TaskTypes.valueOf(taskParams[1].toUpperCase());
@@ -224,13 +131,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
 
             var manager = new FileBackedTaskManager(file, tasks, epics, subTasks, counter);
-
-
             loadHistory(manager, allTypes, strings.getLast());
-
             return manager;
-
-
 
         } catch (IOException e) {
             throw new ManagerCreateException(e.getMessage());
@@ -247,12 +149,78 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
+    @Override
+    public void deleteTasks() {
+        super.deleteTasks();
+        save();
+    }
 
+    @Override
+    public void deleteEpics() {
+        super.deleteEpics();
+        save();
+    }
 
+    @Override
+    public void deleteSubTasks() {
+        super.deleteSubTasks();
+        save();
+    }
 
+    @Override
+    public void deleteTask(Integer id) {
+        super.deleteTask(id);
+        save();
+    }
 
+    @Override
+    public void deleteEpic(Integer epicId) {
+        super.deleteEpic(epicId);
+        save();
+    }
 
+    @Override
+    public void deleteSubTask(Integer subTaskId) {
+        super.deleteSubTask(subTaskId);
+        save();
+    }
 
+    @Override
+    public Task createTask(Task task) {
+        var result = super.createTask(task);
+        save();
+        return result;
+    }
 
+    @Override
+    public Epic createEpic(Epic epic) {
+        var result = super.createEpic(epic);
+        save();
+        return result;
+    }
 
+    @Override
+    public SubTask createSubTask(SubTask subTask) {
+        var result = super.createSubTask(subTask);
+        save();
+        return result;
+    }
+
+    @Override
+    public void updateTask(Task task) {
+        super.updateTask(task);
+        save();
+    }
+
+    @Override
+    public void updateEpic(Epic epic) {
+        super.updateEpic(epic);
+        save();
+    }
+
+    @Override
+    public void updateSubTask(SubTask subTask) {
+        super.updateSubTask(subTask);
+        save();
+    }
 }

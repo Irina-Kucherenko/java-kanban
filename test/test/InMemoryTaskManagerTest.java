@@ -8,6 +8,8 @@ import task.SubTask;
 import task.Task;
 import task.TaskStatus;
 
+import java.util.HashMap;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
@@ -20,7 +22,7 @@ class InMemoryTaskManagerTest {
     public void createAllFields() {
         epic1 = new Epic("Проект", "Разработать проект");
         task1 = new Task("Домашнее задание от мамы", "Убрать хату, помыть посуду");
-        inMemoryTaskManager = new InMemoryTaskManager();
+        inMemoryTaskManager = new InMemoryTaskManager(new HashMap<>(), new HashMap<>(), new HashMap<>(), 0);
 
     }
 

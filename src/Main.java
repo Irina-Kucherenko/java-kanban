@@ -7,27 +7,30 @@ import task.SubTask;
 import task.Task;
 import task.TaskStatus;
 
+
+
 public class Main {
 
     public static void main(String[] args) {
         System.out.println("Поехали!");
         String delimiter = "*****************************************************************************************";
         Managers manager = new Managers();
+
         TaskManager taskManager =  manager.getDefault();
-        Task task1 = new Task("Домашнее задание от мамы", "Убрать хату, помыть посуду");
+        Task task1 = new Task("Домашнее задание от мамы", "Убрать хату -> помыть посуду");
         task1 = taskManager.createTask(task1);
 
-        Task task2= new Task("Новый год: докупить", "Джин, вино, ягермейстер");
+        Task task2= new Task("Новый год: докупить", "Джин -> вино -> ягермейстер");
         taskManager.createTask(task2);
 
         Epic epic1 = new Epic("Проект", "Разработать проект");
         epic1 = taskManager.createEpic(epic1);
-        SubTask subTask1 = new SubTask(epic1.getId(), "Закончить прокрастинировать", "1. Встать с дивана; " +
+        SubTask subTask1 = new SubTask(epic1.getId(), "Закончить прокрастинировать", "1. Встать с дивана -> " +
                 "2. Сесть за ПК");
         subTask1 = taskManager.createSubTask(subTask1);
         epic1.addSubTask(subTask1.getId());
-        SubTask subTask2 = new SubTask(epic1.getId(), "Начать делать проект", "1. Открыть среду; " +
-                " 2.Создать файлик; 3. На это всё, поработали");
+        SubTask subTask2 = new SubTask(epic1.getId(), "Начать делать проект", "1. Открыть среду -> " +
+                " 2.Создать файлик -> 3. На этом всё поработали");
         subTask2 = taskManager.createSubTask(subTask2);
         epic1.addSubTask(subTask2.getId());
         taskManager.updateEpic(epic1);
@@ -101,8 +104,10 @@ public class Main {
 
         System.out.println("История:");
         for (Task task : taskManager.getHistoryManager().getHistory()) {
-            System.out.println(task);
+           System.out.println(task);
         }
+
+
 
 
     }

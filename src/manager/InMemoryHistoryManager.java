@@ -25,7 +25,9 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void addHistory(Task task) {
-        linkLast(task.cloneObject()); /*Объясняю: метод cloneObject нужен для того, чтобы сохранилась в истории
+        if (!recentHistory.containsKey(task.getId())) {
+            linkLast(task.cloneObject());
+        }/*Объясняю: метод cloneObject нужен для того, чтобы сохранилась в истории
         прошлая версия объекта. Допустим, ситуация: мы захотели положить в историю объект, положили; позже нам
         захотелось изменить название и описание объекта, вызвали get метод для определённого объекта. И всё у нас
         сохранена первая версия объекта и актуальная. Руководствовалась требованиями задания, не более*/
@@ -36,11 +38,21 @@ public class InMemoryHistoryManager implements HistoryManager {
     и есть реализация интерфейса*/
 
         if (recentHistory.containsKey(id)) {
-            Node<Task> value = recentHistory.get(id);
-            Node<Task> prev = value.prev;
-            Node<Task> next = value.next;
-            prev.next = next;
-            next.prev = prev;
+            if (head.value.getId() == id) {
+                head = head.next;
+                head.prev = null;
+            }
+            else if (tail.value.getId() == id) {
+                tail = tail.prev;
+                tail.next = null;
+            }
+            else {
+                Node<Task> value = recentHistory.get(id);
+                Node<Task> prev = value.prev;
+                Node<Task> next = value.next;
+                prev.next = next;
+                next.prev = prev;
+            }
             recentHistory.remove(id);
         }
 

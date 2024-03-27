@@ -47,4 +47,6 @@ import java.util.List;
 
      HistoryManager getHistoryManager();
 
+     List<Task> getPrioritizedTasks();
+
  }

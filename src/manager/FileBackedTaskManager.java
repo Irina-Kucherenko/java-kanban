@@ -8,10 +8,8 @@ import task.TaskStatus;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -32,7 +30,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     private void save() {
         CSV csv = new CSV();
         StringBuilder sb = new StringBuilder();
-        sb.append("id,type,name,status,description,epic\n");
+        sb.append("id,type,name,status,description,start,duration,epic\n");
         for (Task task : super.getTasks()) {
             sb.append(csv.toStringTask(task));
         }
@@ -57,15 +55,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = taskParams[2];
         TaskStatus status = TaskStatus.valueOf(taskParams[3].toUpperCase());
         String description = taskParams[4];
+        LocalDateTime startTime = LocalDateTime.parse(taskParams[5]);
+        int minutes = Integer.parseInt(taskParams[6]);
         Integer epicId;
         if (type.equals(TaskTypes.SUBTASK)) {
-            epicId = Integer.parseInt(taskParams[5]);
+            epicId = Integer.parseInt(taskParams[7]);
         } else {
             epicId = null;
         }
 
         if (type.equals(TaskTypes.SUBTASK)) {
-            SubTask subTask = new SubTask(epicId, name, description);
+            SubTask subTask = new SubTask(epicId, name, description, startTime, minutes);
             subTask.setId(id);
             subTask.setStatus(status);
             return subTask;
@@ -77,7 +77,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
             return epic;
         } else {
-            Task task = new Task(name, description);
+            Task task = new Task(name, description, startTime, minutes);
             task.setId(id);
             task.setStatus(status);
             return task;
@@ -115,6 +115,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 if (strings.get(i) != null || !strings.get(i).isBlank()) {
                     String line = strings.get(i);
                     Task task = fromString(line);
+
                     if (counter < task.getId()) {
                         counter = task.getId();
                     }
@@ -138,6 +139,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             throw new ManagerCreateException(e.getMessage());
         }
     }
+
+
 
     static void loadHistory(FileBackedTaskManager manager, HashMap<Integer, Task> allTypes, String history) {
         var historyManager = manager.getHistoryManager();

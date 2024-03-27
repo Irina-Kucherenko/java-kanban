@@ -7,6 +7,7 @@ import task.SubTask;
 import task.Task;
 import task.TaskStatus;
 
+import java.time.LocalDateTime;
 
 
 public class Main {
@@ -17,29 +18,29 @@ public class Main {
         Managers manager = new Managers();
 
         TaskManager taskManager =  manager.getDefault();
-        Task task1 = new Task("Домашнее задание от мамы", "Убрать хату -> помыть посуду");
+        Task task1 = new Task("Домашнее задание от мамы", "Убрать хату -> помыть посуду", LocalDateTime.now(), 5);
         task1 = taskManager.createTask(task1);
 
-        Task task2= new Task("Новый год: докупить", "Джин -> вино -> ягермейстер");
+        Task task2= new Task("Новый год: докупить", "Джин -> вино -> ягермейстер", LocalDateTime.now().plusHours(1), 10);
         taskManager.createTask(task2);
 
         Epic epic1 = new Epic("Проект", "Разработать проект");
         epic1 = taskManager.createEpic(epic1);
         SubTask subTask1 = new SubTask(epic1.getId(), "Закончить прокрастинировать", "1. Встать с дивана -> " +
-                "2. Сесть за ПК");
+                "2. Сесть за ПК", LocalDateTime.now().plusHours(2), 10);
         subTask1 = taskManager.createSubTask(subTask1);
-        epic1.addSubTask(subTask1.getId());
+        epic1.addSubTask(subTask1);
         SubTask subTask2 = new SubTask(epic1.getId(), "Начать делать проект", "1. Открыть среду -> " +
-                " 2.Создать файлик -> 3. На этом всё поработали");
+                " 2.Создать файлик -> 3. На этом всё поработали", LocalDateTime.now().plusHours(3), 10);
         subTask2 = taskManager.createSubTask(subTask2);
-        epic1.addSubTask(subTask2.getId());
+        epic1.addSubTask(subTask2);
         taskManager.updateEpic(epic1);
 
         Epic epic2 = new Epic("Ужин", "Готовка");
         epic2 = taskManager.createEpic(epic2);
-        SubTask subTask3 = new SubTask(epic2.getId(), "Главное блюдо", "Поставить мясо в духовку");
+        SubTask subTask3 = new SubTask(epic2.getId(), "Главное блюдо", "Поставить мясо в духовку", LocalDateTime.now().plusHours(4), 10);
         subTask3 = taskManager.createSubTask(subTask3);
-        epic2.addSubTask(subTask3.getId());
+        epic2.addSubTask(subTask3);
         taskManager.updateEpic(epic2);
 
         System.out.println(delimiter);

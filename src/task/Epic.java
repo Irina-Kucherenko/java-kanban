@@ -36,7 +36,7 @@ public class Epic extends Task {
     }
 
     @Override
-    public Duration getDuration() {
+    public Duration getDuration() { //в комментарии нет конкретики, что собственно не так, и почему это должно вычисляться в мэнеджере
         int minutes = 0;
         for (SubTask subTask : subTaskList) {
             minutes += subTask.getDuration().toMinutes();

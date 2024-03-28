@@ -136,7 +136,7 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(epicId);
         if (epics.containsKey(epic.getId())) {
             epics.remove(epicId);
-            epic.getSubTaskList().forEach(s -> deleteSubTask(s.getId()));
+            epic.getSubTaskList().stream().map(SubTask::getId).forEach(this::deleteSubTask);
         }
     }
 
@@ -152,7 +152,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task createTask(Task task){
-         priorityListCheckOfIntersection(task);
+        priorityListCheckOfIntersection(task);
         task.setId(getIdentifier());
         tasks.put(task.getId(), task);
         if (task.getStartTime() != null) {

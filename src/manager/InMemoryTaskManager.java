@@ -5,15 +5,14 @@ import task.SubTask;
 import task.Task;
 import task.TaskStatus;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     private final Map<Integer, Task> tasks;
     private final Map<Integer, Epic> epics;
     private final Map<Integer, SubTask> subTasks;
-
-
-    
+    private final TreeSet<Task> priorityTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
     private final HistoryManager historyManager = Managers.getDefaultHistory();
     
     private int idCounter;
@@ -24,6 +23,20 @@ public class InMemoryTaskManager implements TaskManager {
         this.epics = epics;
         this.subTasks = subTasks;
         this.idCounter = idCounter;
+        updatePriorityTasks();
+    }
+
+    private void updatePriorityTasks() {
+        this.tasks.values().forEach(task -> {
+            if (task.getStartTime() != null) {
+                priorityTasks.add(task);
+            }
+        });
+        this.subTasks.values().forEach(subTask -> {
+            if (subTask.getStartTime() != null) {
+                priorityTasks.add(subTask);
+            }
+        });
     }
 
     @Override
@@ -114,6 +127,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTask(Integer id) {
+        priorityTasks.remove(tasks.get(id));
         tasks.remove(id);
     }
 
@@ -122,22 +136,28 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(epicId);
         if (epics.containsKey(epic.getId())) {
             epics.remove(epicId);
-            epic.getSubTaskList().forEach(this::deleteSubTask);
+            epic.getSubTaskList().stream().map(SubTask::getId).forEach(this::deleteSubTask);
         }
     }
 
     @Override
     public void deleteSubTask(Integer subTaskId) {
+        priorityTasks.remove(subTasks.get(subTaskId));
         subTasks.remove(subTaskId);
         for (Epic epic : epics.values()) {
             updateStatusEpic(epic);
         }
+
     }
 
     @Override
     public Task createTask(Task task){
+        priorityListCheckOfIntersection(task);
         task.setId(getIdentifier());
         tasks.put(task.getId(), task);
+        if (task.getStartTime() != null) {
+            priorityTasks.add(task);
+        }
         return task;
     }
 
@@ -150,8 +170,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public SubTask createSubTask(SubTask subTask){
+        priorityListCheckOfIntersection(subTask);
         subTask.setId(getIdentifier());
         subTasks.put(subTask.getId(), subTask);
+        if (subTask.getStartTime() != null) {
+            priorityTasks.add(subTask);
+        }
+
         return subTask;
     }
 
@@ -193,11 +218,38 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(epicId);
         if (epics.containsKey(epic.getId())) {
             subTaskList = epics.get(epicId).getSubTaskList().stream()
-                    .filter(subTasks::containsKey)
-                    .map(subTasks::get)
+                    .filter(subTask -> subTasks.containsKey(subTask.getId()))
+                    .map(subTask -> subTasks.get(subTask.getId()))
                     .toList();
         }
         return subTaskList;
+    }
+
+    @Override
+    public List<Task> getPrioritizedTasks() {
+        return priorityTasks.stream().toList();
+    }
+
+
+    private boolean checkTimeIntersection(Task t1, Task t2) {
+        LocalDateTime start;
+        LocalDateTime end;
+        if (t1.getStartTime().isBefore(t2.getStartTime())) {
+            start = t1.getEndTime();
+            end = t2.getStartTime();
+        }
+        else {
+            start = t2.getEndTime();
+            end = t1.getStartTime();
+        }
+        return start.isAfter(end);
+    }
+
+    private void priorityListCheckOfIntersection(Task t1) {
+        boolean checkInterSection = priorityTasks.stream().anyMatch(task -> checkTimeIntersection(t1, task));
+        if (!priorityTasks.isEmpty() && checkInterSection) {
+            throw new IllegalArgumentException("Задача имеет временное пересечение с другими задачами.");
+        }
     }
 
    

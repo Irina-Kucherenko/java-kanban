@@ -2,11 +2,13 @@
 
 import manager.Managers;
 import manager.TaskManager;
+import server.HttpTaskServer;
 import task.Epic;
 import task.SubTask;
 import task.Task;
 import task.TaskStatus;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 
@@ -108,8 +110,12 @@ public class Main {
            System.out.println(task);
         }
 
-
-
+        try {
+            HttpTaskServer httpTaskServer = new HttpTaskServer();
+            httpTaskServer.startServer();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 }

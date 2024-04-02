@@ -100,7 +100,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTask(Integer id) {
         Task task = tasks.get(id);
-        if (task.equals(tasks.get(id))) {
+        if (task != null && task.equals(tasks.get(id))) {
             historyManager.addHistory(task);
         }
         return task;
@@ -117,9 +117,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public SubTask getSubTask(Integer subTaskId) {
-
         SubTask subTask =  subTasks.get(subTaskId);
-        if (subTask.equals(subTasks.get(subTaskId))) {
+        if (subTask != null && subTask.equals(subTasks.get(subTaskId))) {
             historyManager.addHistory(subTask);
         }
         return subTask;
@@ -127,8 +126,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTask(Integer id) {
-        priorityTasks.remove(tasks.get(id));
-        tasks.remove(id);
+        if (tasks.containsKey(id)) {
+            priorityTasks.remove(tasks.get(id));
+            tasks.remove(id);
+        } else {
+            throw new IllegalArgumentException("Задачи с id(" + id  + ") не существует.");
+        }
     }
 
     @Override

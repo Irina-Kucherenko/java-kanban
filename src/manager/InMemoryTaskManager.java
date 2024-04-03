@@ -109,7 +109,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Epic getEpic(Integer epicId) {
         Epic epic = epics.get(epicId);
-        if (epic.equals(epics.get(epicId))) {
+        if (epic != null && epic.equals(epics.get(epicId))) {
             historyManager.addHistory(epic);
         }
         return epic;
@@ -140,13 +140,19 @@ public class InMemoryTaskManager implements TaskManager {
         if (epics.containsKey(epic.getId())) {
             epics.remove(epicId);
             epic.getSubTaskList().stream().map(SubTask::getId).forEach(this::deleteSubTask);
+        } else {
+            throw new IllegalArgumentException("Эпика с id(" + epicId  + ") не существует.");
         }
     }
 
     @Override
     public void deleteSubTask(Integer subTaskId) {
-        priorityTasks.remove(subTasks.get(subTaskId));
-        subTasks.remove(subTaskId);
+        if (subTasks.containsKey(subTaskId)) {
+            priorityTasks.remove(subTasks.get(subTaskId));
+            subTasks.remove(subTaskId);
+        } else {
+            throw new IllegalArgumentException("Подзадачи с id(" + subTaskId  + ") не существует.");
+        }
         for (Epic epic : epics.values()) {
             updateStatusEpic(epic);
         }
@@ -176,6 +182,8 @@ public class InMemoryTaskManager implements TaskManager {
         priorityListCheckOfIntersection(subTask);
         subTask.setId(getIdentifier());
         subTasks.put(subTask.getId(), subTask);
+        epics.get(subTask.getEpicId()).addSubTask(subTask);
+        updateStatusEpic(epics.get(subTask.getEpicId()));
         if (subTask.getStartTime() != null) {
             priorityTasks.add(subTask);
         }
@@ -217,15 +225,16 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<SubTask> getSubTasksOfEpic(int epicId){
-        List<SubTask> subTaskList = null;
+        List<SubTask> subTaskList = new ArrayList<>();
         Epic epic = epics.get(epicId);
         if (epics.containsKey(epic.getId())) {
-            subTaskList = epics.get(epicId).getSubTaskList().stream()
+            subTaskList = epic.getSubTaskList().stream()
                     .filter(subTask -> subTasks.containsKey(subTask.getId()))
                     .map(subTask -> subTasks.get(subTask.getId()))
                     .toList();
         }
         return subTaskList;
+
     }
 
     @Override

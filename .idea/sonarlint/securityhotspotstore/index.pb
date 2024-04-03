@@ -169,3 +169,9 @@ w
 G.idea/sonarlint/issuestore/6/5/6560094c2d9d2c1abaaa1d784eb7f76d81554d68,3\d\3df01a767f4b0f17442ac9465fc61bf3b0a24f42
 w
 G.idea/sonarlint/issuestore/f/8/f86a79e84dc555b706f17e9f7ad40ab69dd03a13,4\3\437d25cc00fb79059ff8de0c5d7deae01843397a
+M
+test/test/HttpServerTest.java,a\7\a7b925b54136154debbf17b9f39bc72c963ca40b
+Q
+!test/test/HistoryManagerTest.java,e\b\eb933c06d61d17617913613d6c4d6863e35feac0
+Q
+!test/test/HttpTaskServerTest.java,f\5\f56e3342bf84bc5d69fb50ce4e1c95af30d4de8b

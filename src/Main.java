@@ -31,18 +31,18 @@ public class Main {
         SubTask subTask1 = new SubTask(epic1.getId(), "Закончить прокрастинировать", "1. Встать с дивана -> " +
                 "2. Сесть за ПК", LocalDateTime.now().plusHours(2), 10);
         subTask1 = taskManager.createSubTask(subTask1);
-        epic1.addSubTask(subTask1);
+
         SubTask subTask2 = new SubTask(epic1.getId(), "Начать делать проект", "1. Открыть среду -> " +
                 " 2.Создать файлик -> 3. На этом всё поработали", LocalDateTime.now().plusHours(3), 10);
         subTask2 = taskManager.createSubTask(subTask2);
-        epic1.addSubTask(subTask2);
+
         taskManager.updateEpic(epic1);
 
         Epic epic2 = new Epic("Ужин", "Готовка");
         epic2 = taskManager.createEpic(epic2);
         SubTask subTask3 = new SubTask(epic2.getId(), "Главное блюдо", "Поставить мясо в духовку", LocalDateTime.now().plusHours(4), 10);
         subTask3 = taskManager.createSubTask(subTask3);
-        epic2.addSubTask(subTask3);
+
         taskManager.updateEpic(epic2);
 
         System.out.println(delimiter);
@@ -109,9 +109,11 @@ public class Main {
         for (Task task : taskManager.getHistoryManager().getHistory()) {
            System.out.println(task);
         }
+        System.out.println(delimiter);
+        System.out.println(taskManager.getSubTasksOfEpic(epic1.getId()));
 
         try {
-            HttpTaskServer httpTaskServer = new HttpTaskServer();
+            HttpTaskServer httpTaskServer = new HttpTaskServer(taskManager);
             httpTaskServer.startServer();
         } catch (IOException e) {
             throw new RuntimeException(e);

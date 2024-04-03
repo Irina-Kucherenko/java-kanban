@@ -33,10 +33,12 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldAddSubTaskInStorageAndGetSubTask() {
-        SubTask subTask1 = new SubTask(-1, "Закончить прокрастинировать", "1. Встать с дивана; " +
+        Epic epic = new Epic("rrr", "rrr");
+        taskManager.createEpic(epic);
+        SubTask subTask1 = new SubTask(epic.getId(), "Закончить прокрастинировать", "1. Встать с дивана; " +
                 "2. Сесть за ПК", LocalDateTime.now().plusHours(2), 5);
         subTask1 = taskManager.createSubTask(subTask1);
-        assertEquals(1, taskManager.getSubTasks().size());
+        assertEquals(1, taskManager.getSubTasksOfEpic(epic.getId()).size());
         assertNotNull(taskManager.getSubTask(subTask1.getId()));
     }
 
@@ -53,7 +55,9 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertDoesNotThrow(() -> taskManager.createTask(task1));
         epic1.setId(4);
         assertDoesNotThrow(() -> taskManager.createEpic(epic1));
-        SubTask subTask1 = new SubTask(-1, "Закончить прокрастинировать", "1. Встать с дивана; " +
+        Epic epic = new Epic("rrr", "rrr");
+        taskManager.createEpic(epic);
+        SubTask subTask1 = new SubTask(epic.getId(), "Закончить прокрастинировать", "1. Встать с дивана; " +
                 "2. Сесть за ПК", LocalDateTime.now().plusHours(3), 5);
         subTask1.setId(5);
         assertDoesNotThrow(() -> taskManager.createSubTask(subTask1));
@@ -102,8 +106,6 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "12", LocalDateTime.now().plusHours(6), 5);
         taskManager.createSubTask(subTask1);
         taskManager.createSubTask(subTask2);
-        epic1.addSubTask(subTask1);
-        epic1.addSubTask(subTask2);
         taskManager.updateEpic(epic1);
         taskManager.deleteEpic(epic1.getId());
         assertEquals(0, taskManager.getSubTasks().size());
@@ -113,11 +115,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void checkTimeIntersectionTest() {
-        SubTask subTask1 = new SubTask(-1, "Закончить прокрастинировать", "1. Встать с дивана; " +
-                "2. Сесть за ПК", LocalDateTime.now().plusHours(1), 10);
-        taskManager.createSubTask(subTask1);
+        taskManager.createEpic(epic1);
+        SubTask subTask2 = new SubTask(epic1.getId(), "123", "6" +
+                "12", LocalDateTime.now().plusHours(1), 5);
+        epic1.addSubTask(subTask2);
+        taskManager.createSubTask(subTask2);
 
-        assertThrows(IllegalArgumentException.class, () -> taskManager.createSubTask(subTask1));
+        assertThrows(IllegalArgumentException.class, () -> taskManager.createTask(task1));
     }
 
     @Test
@@ -130,9 +134,9 @@ abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void checkPrioritizedListWithoutTimeTest() {
         assertEquals(0, taskManager.getPrioritizedTasks().size());
-        SubTask subTask1 = new SubTask(-1, "Закончить прокрастинировать", "1. Встать с дивана; " +
+        Task task1 = new Task("Закончить прокрастинировать", "1. Встать с дивана; " +
                 "2. Сесть за ПК");
-        taskManager.createSubTask(subTask1);
+        taskManager.createTask(task1);
         assertEquals(0, taskManager.getPrioritizedTasks().size());
     }
 

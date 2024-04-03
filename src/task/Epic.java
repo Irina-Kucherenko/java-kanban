@@ -16,7 +16,7 @@ public class Epic extends Task {
 
     public void addSubTask(Task subtask){
 
-        if (super.getId() != subtask.getId()) {
+        if (!super.getId().equals(subtask.getId())) {
             subTaskList.add((SubTask) subtask);
             subTaskList.sort(Comparator.comparing(Task::getStartTime));
         }
@@ -39,7 +39,7 @@ public class Epic extends Task {
     public Duration getDuration() { //в комментарии нет конкретики, что собственно не так, и почему это должно вычисляться в мэнеджере
         int minutes = 0;
         for (SubTask subTask : subTaskList) {
-            minutes += subTask.getDuration().toMinutes();
+            minutes += (int) subTask.getDuration().toMinutes();
         }
         return Duration.ofMinutes(minutes);
     }

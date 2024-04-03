@@ -39,9 +39,8 @@ public class HttpTaskServer {
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
             .create();
 
-    public HttpTaskServer() throws IOException {
-        Managers manager = new Managers();
-        taskManager = manager.getDefault();
+    public HttpTaskServer(TaskManager taskManager) throws IOException {
+        this.taskManager = taskManager;
         httpServer = HttpServer.create();
         httpServer.bind(new InetSocketAddress("localhost", PORT), 0);
         httpServer.createContext("/task", new TasksHandler());
@@ -202,14 +201,18 @@ public class HttpTaskServer {
             }
         }
 
-        private void subtaskDeleteRequest(String[] stringPath, HttpExchange exchange) throws IOException {
-            if (stringPath.length == 1) {
+        private void subtaskDeleteRequest(String[] stringPath, HttpExchange exchange) {
+            if (stringPath.length == 2) {
                 taskManager.deleteSubTasks();
-                exchange.sendResponseHeaders(200, 0);
-            } else if (stringPath.length == 2) {
-                Integer id = Integer.parseInt(stringPath[1]);
-                taskManager.deleteSubTask(id);
-                exchange.sendResponseHeaders(200, 0);
+                sendResponse(exchange, "Подзадачи успешно удалены", 200);
+            } else if (stringPath.length == 3) {
+                Integer id = Integer.parseInt(stringPath[2]);
+                try {
+                    taskManager.deleteSubTask(id);
+                    sendResponse(exchange, "Подзадача успешно удалена", 200);
+                } catch (IllegalArgumentException e) {
+                    sendResponse(exchange, e.getMessage(), 404);
+                }
             }
         }
         @Override
@@ -234,27 +237,32 @@ public class HttpTaskServer {
 
     class EpicsHandler implements HttpHandler {
 
-        private void epicGetRequest(String[] stringPath, HttpExchange exchange) throws IOException {
-            if (stringPath.length == 1) {
+        private void epicGetRequest(String[] stringPath, HttpExchange exchange) {
+            if (stringPath.length == 2) {
                 List<Epic> epics = taskManager.getEpics();
                 sendResponse(exchange, epics, 200);
-            } else if (stringPath.length == 2) {
-                Integer id = Integer.parseInt(stringPath[1]);
+            } else if (stringPath.length == 3) {
+                Integer id = Integer.parseInt(stringPath[2]);
                 Epic epic = taskManager.getEpic(id);
                 if (epic == null) {
-                    exchange.sendResponseHeaders(404, 0);
+                    sendResponse(exchange, "Эпик не найден", 404);
                 } else {
                     sendResponse(exchange, epic, 200);
                 }
-            } else if (stringPath.length == 3) {
-                Integer id = Integer.parseInt(stringPath[1]);
+            } else if (stringPath.length == 4) {
+                Integer id = Integer.parseInt(stringPath[2]);
                 Epic epic = taskManager.getEpic(id);
                 if (epic == null) {
-                    exchange.sendResponseHeaders(404, 0);
-                } else {
+                    sendResponse(exchange, "Эпик не найден", 404);
+                    return;
+                }
+                if (stringPath[3].equals("subtask")) {
                     List<SubTask> subTaskOfEpic = taskManager.getSubTasksOfEpic(epic.getId());
                     sendResponse(exchange, subTaskOfEpic, 200);
+                } else {
+                    sendResponse(exchange, ERROR_MESSAGE, 404);
                 }
+
             }
         }
 
@@ -268,18 +276,22 @@ public class HttpTaskServer {
                     sendResponse(exchange, epic, 201);
                 }
             } catch (ManagerCreateException e) {
-                exchange.sendResponseHeaders(406, 0);
+                sendResponse(exchange, "Временное пересечение", 406);
             }
         }
 
-        private void epicDeleteRequest(String[] stringPath, HttpExchange exchange) throws IOException {
-            if (stringPath.length == 1) {
+        private void epicDeleteRequest(String[] stringPath, HttpExchange exchange) {
+            if (stringPath.length == 2) {
                 taskManager.deleteEpics();
-                exchange.sendResponseHeaders(200, 0);
-            } else if (stringPath.length == 2) {
-                Integer id = Integer.parseInt(stringPath[1]);
-                taskManager.deleteEpic(id);
-                exchange.sendResponseHeaders(200, 0);
+                sendResponse(exchange, "Эпики успешно удалены", 200);
+            } else if (stringPath.length == 3) {
+                Integer id = Integer.parseInt(stringPath[2]);
+                try {
+                    taskManager.deleteEpic(id);
+                    sendResponse(exchange, "Эпик успешно удален", 200);
+                } catch (IllegalArgumentException e) {
+                    sendResponse(exchange, e.getMessage(), 404);
+                }
             }
         }
         @Override
@@ -293,6 +305,7 @@ public class HttpTaskServer {
                 case "DELETE" -> epicDeleteRequest(stringPath, exchange);
                 default -> throw new IllegalArgumentException(ERROR_MESSAGE);
             }
+            exchange.close();
         }
     }
 
@@ -303,7 +316,7 @@ public class HttpTaskServer {
             String[] stringPath = path.toString().split("/");
             String method = exchange.getRequestMethod();
             if (method.equals("GET")) {
-                if (stringPath.length == 1) {
+                if (stringPath.length == 2) {
                     List<Task> prioritized = taskManager.getPrioritizedTasks();
                     sendResponse(exchange, prioritized, 200);
                 }
@@ -315,7 +328,6 @@ public class HttpTaskServer {
     }
 }
 
-//исправить обработку эпика и приоритайзд, сделать тесты #TODO
 
 
 

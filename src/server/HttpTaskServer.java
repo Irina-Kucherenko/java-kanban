@@ -69,13 +69,13 @@ public class HttpTaskServer {
             OutputStream os = exchange.getResponseBody();
             os.write(response.getBytes());
         } catch (Exception e) {
-            throw new RuntimeException("Произошла ошибка при отправке ответа: " + e.getMessage());
+            throw new SendResponseException("Произошла ошибка при отправке ответа: " + e.getMessage());
         }
     }
 
 
 
-    class HistoryHandler implements HttpHandler {
+    private  class HistoryHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) {
             URI path = exchange.getRequestURI();
@@ -94,7 +94,7 @@ public class HttpTaskServer {
     }
 
 
-    class TasksHandler implements HttpHandler {
+    private class TasksHandler implements HttpHandler {
 
 
         private void taskGetRequest(String[] stringPath, HttpExchange exchange) {
@@ -167,7 +167,7 @@ public class HttpTaskServer {
 
     }
 
-    class SubTasksHandler implements HttpHandler {
+    private class SubTasksHandler implements HttpHandler {
 
         private void subtaskGetRequest(String[] stringPath, HttpExchange exchange)  {
             if (stringPath.length == 2) {
@@ -235,7 +235,7 @@ public class HttpTaskServer {
         }
     }
 
-    class EpicsHandler implements HttpHandler {
+    private class EpicsHandler implements HttpHandler {
 
         private void epicGetRequest(String[] stringPath, HttpExchange exchange) {
             if (stringPath.length == 2) {
@@ -309,7 +309,7 @@ public class HttpTaskServer {
         }
     }
 
-    class PrioritizedHandler implements HttpHandler {
+    private class PrioritizedHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) {
             URI path = exchange.getRequestURI();
@@ -327,13 +327,3 @@ public class HttpTaskServer {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
